@@ -54,8 +54,19 @@ def greedy_cow_transport(cows,limit=10):
     transported on a particular trip and the overall list containing all the
     trips
     """
-    # TODO: Your code here
-    pass
+    trips = []
+    sorted_cows = sorted(cows, key=cows.get, reverse=True)
+    while sorted_cows:
+        trip = []
+        trip_weight = 0
+        for cow in sorted_cows[:]:
+            weight = cows[cow]
+            if weight + trip_weight <= limit:
+                trip.append(cow)
+                trip_weight += weight
+                sorted_cows.remove(cow)
+        trips.append(trip)
+    return trips
 
 
 # Problem 2
