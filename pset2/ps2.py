@@ -15,9 +15,10 @@ import pylab
 # If you get a "Bad magic number" ImportError, you are not using Python 3.5 
 
 # For Python 3.6:
-from ps2_verify_movement36 import testRobotMovement
+#from ps2_verify_movement36 import testRobotMovement
 # If you get a "Bad magic number" ImportError, you are not using Python 3.6
 
+from ps2_verify_movement312 import testRobotMovement
 
 # === Provided class Position
 class Position(object):
@@ -82,7 +83,9 @@ class RectangularRoom(object):
         width: an integer > 0
         height: an integer > 0
         """
-        raise NotImplementedError
+        self.width = width
+        self.height = height
+        self.cleaned_tiles = []
     
     def cleanTileAtPosition(self, pos):
         """
@@ -92,7 +95,10 @@ class RectangularRoom(object):
 
         pos: a Position
         """
-        raise NotImplementedError
+        if self.isPositionInRoom(pos):
+            tile = (int(pos.getX()), int(pos.getY()))
+            if tile not in self.cleaned_tiles:
+                self.cleaned_tiles.append(tile)
 
     def isTileCleaned(self, m, n):
         """
@@ -104,7 +110,7 @@ class RectangularRoom(object):
         n: an integer
         returns: True if (m, n) is cleaned, False otherwise
         """
-        raise NotImplementedError
+        return (m, n) in self.cleaned_tiles
     
     def getNumTiles(self):
         """
@@ -112,7 +118,7 @@ class RectangularRoom(object):
 
         returns: an integer
         """
-        raise NotImplementedError
+        return self.width * self.height
 
     def getNumCleanedTiles(self):
         """
@@ -120,7 +126,7 @@ class RectangularRoom(object):
 
         returns: an integer
         """
-        raise NotImplementedError
+        return len(self.cleaned_tiles)
 
     def getRandomPosition(self):
         """
@@ -128,7 +134,9 @@ class RectangularRoom(object):
 
         returns: a Position object.
         """
-        raise NotImplementedError
+        rand_x = random.uniform(0, self.width)
+        rand_y = random.uniform(0, self.height)
+        return Position(rand_x, rand_y)
 
     def isPositionInRoom(self, pos):
         """
@@ -137,7 +145,9 @@ class RectangularRoom(object):
         pos: a Position object.
         returns: True if pos is in the room, False otherwise.
         """
-        raise NotImplementedError
+        x = pos.getX()
+        y = pos.getY()
+        return 0 <= x < self.width and 0 <= y < self.height
 
 
 # === Problem 2
