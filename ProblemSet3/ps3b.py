@@ -148,6 +148,8 @@ class Patient(object):
                 self.viruses.append(virus.reproduce(pop_density))
             except NoChildException:
                 pass
+            if self.getTotalPop() == self.maxPop:
+                break
         return self.getTotalPop()
 
 
