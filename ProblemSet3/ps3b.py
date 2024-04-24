@@ -142,15 +142,15 @@ class Patient(object):
         for virus in self.viruses[:]:
             if virus.doesClear():
                 self.viruses.remove(virus)
-        pop_density = self.getTotalPop() / self.maxPop
-        for virus in self.viruses:
+        pop_density = len(self.viruses) / self.maxPop
+        for virus in self.viruses[:]:
             try:
                 self.viruses.append(virus.reproduce(pop_density))
             except NoChildException:
                 pass
-            if self.getTotalPop() == self.maxPop:
+            if len(self.viruses) == self.maxPop:
                 break
-        return self.getTotalPop()
+        return len(self.viruses)
 
 
 
@@ -214,7 +214,7 @@ class ResistantVirus(SimpleVirus):
         mutProb: Mutation probability for this virus particle (a float). This is
         the probability of the offspring acquiring or losing resistance to a drug.
         """
-        super().__init__(maxBirthProb, clearProb)
+        SimpleVirus.__init__(self, maxBirthProb, clearProb)
         self.resistances = resistances
         self.mutProb = mutProb
 
@@ -288,16 +288,19 @@ class ResistantVirus(SimpleVirus):
         maxBirthProb and clearProb values as this virus. Raises a
         NoChildException if this virus particle does not reproduce.
         """
-        for i in activeDrugs:
-            if not self.resistances[i]:
+        for drug in activeDrugs:
+            if not self.isResistantTo(drug):
                 raise NoChildException
         reprod_prob = self.maxBirthProb * (1 - popDensity)
         if random.random() <= reprod_prob:
             offspring = ResistantVirus(self.maxBirthProb, self.clearProb,
                                        self.resistances, self.mutProb)
-            for i in offspring.resistances:
+            for drug in offspring.resistances:
                 if random.random() <= offspring.mutProb:
-                    offspring.resistances[i] = not offspring.resistances[i]
+                    if self.isResistantTo(drug):
+                        offspring.resistances[drug] = False
+                    else:
+                        offspring.resistances[drug] = True
             return offspring
         raise NoChildException
 
@@ -320,9 +323,8 @@ class TreatedPatient(Patient):
 
         maxPop: The  maximum virus population for this patient (an integer)
         """
-        super().__init__(viruses, maxPop)
-        self.prescriptions = []
-        # TODO
+        Patient.__init__(self, viruses, maxPop)
+        self.drugs = []
 
 
     def addPrescription(self, newDrug):
@@ -335,9 +337,8 @@ class TreatedPatient(Patient):
 
         postcondition: The list of drugs being administered to a patient is updated
         """
-        if newDrug not in self.prescriptions:
-            self.prescriptions.append(newDrug)
-        # TODO
+        if newDrug not in self.drugs:
+            self.drugs.append(newDrug)
 
 
     def getPrescriptions(self):
@@ -347,8 +348,7 @@ class TreatedPatient(Patient):
         returns: The list of drug names (strings) being administered to this
         patient.
         """
-        return self.prescriptions
-        # TODO
+        return self.drugs
 
 
     def getResistPop(self, drugResist):
@@ -363,11 +363,12 @@ class TreatedPatient(Patient):
         drugs in the drugResist list.
         """
         resist_pop = 0
-        for i in self.viruses:
-            if drugResist in self.viruses[i].resistances:
+        for virus in self.viruses:
+            resistances = [drug for drug in drugResist if
+                           virus.resistances.get(drug, False)]
+            if len(resistances) == len(drugResist):
                 resist_pop += 1
         return resist_pop
-        # TODO
 
 
     def update(self):
@@ -393,16 +394,16 @@ class TreatedPatient(Patient):
         for virus in self.viruses[:]:
             if virus.doesClear():
                 self.viruses.remove(virus)
-        pop_density = self.getTotalPop() / self.maxPop
-        for virus in self.viruses:
+        pop_density = len(self.viruses) / self.maxPop
+        for virus in self.viruses[:]:
             try:
-                self.viruses.append(virus.reproduce(pop_density))
+                self.viruses.append(virus.reproduce(pop_density,
+                                                    self.drugs))
             except NoChildException:
                 pass
-            if self.getTotalPop() == self.maxPop:
+            if len(self.viruses) == self.maxPop:
                 break
-        return self.getTotalPop()
-        # TODO
+        return len(self.viruses)
 
 
 
