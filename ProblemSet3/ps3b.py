@@ -172,15 +172,15 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     clearProb: Maximum clearance probability (a float between 0-1)
     numTrials: number of simulation runs to execute (an integer)
     """
+    total_pop = [0] * 300
+    virus = SimpleVirus(maxBirthProb, clearProb)
+    viruses = [virus] * numViruses
     for _ in range(numTrials):
-        viruses = [SimpleVirus(maxBirthProb, clearProb)] * numViruses
         patient = Patient(viruses, maxPop)
-        avg_pop = [0] * 300
         for t in range(300):
-            patient.update()
-            avg_pop[t] += patient.getTotalPop()
-        avg_pop = [avg_pop[i] / numTrials for i in range(300)]
-    pylab.plot(avg_pop, label = "SimpleVirus")
+            total_pop[t] += patient.update()
+    total_pop = [total_pop[i] / numTrials for i in range(300)]
+    pylab.plot(total_pop, label = "SimpleVirus")
     pylab.title("SimpleVirus simulation")
     pylab.xlabel("Time Steps")
     pylab.ylabel("Average Virus Population")
@@ -432,5 +432,26 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
     numTrials: number of simulation runs to execute (an integer)
     
     """
-
-    # TODO
+    total_pop = [0] * 300
+    resist_pop = [0] * 300
+    virus = ResistantVirus(maxBirthProb, clearProb, resistances, mutProb)
+    viruses = [virus] * numViruses
+    drug = 'guttagonol'
+    for _ in range(numTrials):
+        patient = TreatedPatient(viruses, maxPop)
+        for t in range(150):
+            total_pop[t] += patient.update()
+            resist_pop[t] += patient.getResistPop([drug])
+        patient.addPrescription(drug)
+        for t in range(150, 300):
+            total_pop[t] += patient.update()
+            resist_pop[t] += patient.getResistPop([drug])
+    total_pop = [total_pop[i] / numTrials for i in range(300)]
+    resist_pop = [resist_pop[i] / numTrials for i in range(300)]
+    pylab.plot(total_pop, label = "Total")
+    pylab.plot(resist_pop, label = "ResistantVirus")
+    pylab.title("ResistantVirus simulation")
+    pylab.xlabel("Time Steps")
+    pylab.ylabel("Average Virus Population")
+    pylab.legend(loc = "best")
+    pylab.show()
