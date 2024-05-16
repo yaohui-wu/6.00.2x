@@ -170,8 +170,18 @@ def evaluate_models_on_training(x, y, models):
     Returns:
         None
     """
-    # TODO
-    pass
+    x_val, y_val = pylab.array(x), pylab.array(y)
+    for _ in models:
+        pylab.plot(x_val, y_val, 'bo', label = 'Measured points')
+        pylab.title('Temperature vs. time')
+        pylab.xlabel('Year')
+        pylab.ylabel('Temperature')
+        a, b = models[0][0], models[0][1]
+        estimated_y = a * x_val + b
+        pylab.plot(x_val, estimated_y, label = 'R^2 =' +
+                   str(r_squared(y_val, estimated_y)))
+        pylab.legend(loc = 'best')
+        pylab.show()
 
 
 ### Begining of program
