@@ -1,2 +1,2 @@
 # Massachusetts Institute of Technology
-## 6.00.2 Introduction to Computational Thinking and Data Science
+## 6.00.2x Introduction to Computational Thinking and Data Science, 2024
